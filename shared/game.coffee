@@ -268,7 +268,6 @@ module.exports = class Game
             break
 
       recursivelyAdvance(@state.teams)
-<<<<<<< HEAD
 
       # If the new dot is dead, keep advancing.
       currentDot = @_getActive().dot
@@ -277,12 +276,6 @@ module.exports = class Game
         break if @_getActive().dot == currentDot
 
       @state.turnTime = @TURN_TIME
-=======
-      current = @_getActive()
-      while(!@_getActive().dot.alive)
-        recursivelyAdvance(@state.teams)
-        break if (@_getActive().dot.x == current.dot.x) and (@_getActive().dot.y == current.dot.y)
->>>>>>> advance turn now repeats if active dot is dead
       @state.updated = true
 
     # Get the active team, player, and dot.

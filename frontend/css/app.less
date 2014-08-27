@@ -1,4 +1,5 @@
 @import 'bootstrap/bootstrap';
+@import 'buttons';
 
 body{
 	background-image: url("/images/shattered_dark.png");
@@ -86,4 +87,19 @@ label.control-label{
   word-wrap: break-word;
   position: relative;
   padding: 0px 15px 0px 15px;
+}
+
+html, body {
+  background: url('/background.png');
+}
+
+#canvasWrapper {
+  background-image: url('/crt-dark.png');
+  width: 982px;
+  height: 589px;
+
+  canvas {
+    margin-left: (982px - 800px)/2;
+    margin-top: (589px - 480px)/2;
+  }
 }
