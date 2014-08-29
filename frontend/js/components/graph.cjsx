@@ -3,10 +3,10 @@ React = require('react/addons')
 _     = require('lodash')
 
 module.exports = React.createClass(
-  AXIS_COLOR:            'rgb(245,255,245)'
-  FUNCTION_COLOR:        'rgb(245,255,245)'
-  DOT_COLOR:             'rgb(245,255,245)'
-  ACTIVE_DOT_COLOR:      'rgb(245,255,245)'
+  AXIS_COLOR:            'rgb(154, 175, 192)'
+  FUNCTION_COLOR:        'rgb(59,187,51)'
+  DOT_COLOR:             'rgb(241,54,44)'
+  ACTIVE_DOT_COLOR:      'rgb(36,199,238)'
   OBSTACLE_STROKE_COLOR: 'rgb(245,255,245)'
   OBSTACLE_FILL_COLOR:   'rgba(245,255,245,0.05)'
 
@@ -121,6 +121,9 @@ module.exports = React.createClass(
       context.strokeStyle = @DEAD_DOT_COLOR
     else
       context.strokeStyle = @DOT_COLOR
+
+    context.shadowColor = 'grey';
+    context.shadowBlur = 10;
     context.stroke()
 
   drawAntiObstacle: (context, ao)->
@@ -136,8 +139,8 @@ module.exports = React.createClass(
     context.clip()
     context.clearRect(
       0, 
-      0, 
-      @CANVAS_WIDTH, 
+      0,
+      @CANVAS_WIDTH,
       @_canvasHeight()
     )
 
@@ -191,10 +194,14 @@ module.exports = React.createClass(
 
     dx = 1/@_toPx(1)
 
+
     for x in [x0 .. xMax] by flip*dx
       y = @props.gameState.fn.evaluate(x)
       context.lineTo(@_g2c(x, y)...)
     context.lineTo(@_g2c(xMax, @props.gameState.fn.evaluate(xMax))...)
+
+    context.shadowColor = 'whitesmoke';
+    context.shadowBlur = 5;
 
     context.stroke()
 
@@ -205,4 +212,5 @@ module.exports = React.createClass(
         height={@_canvasHeight()}
       />
     </div>
+
 )

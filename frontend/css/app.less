@@ -1,5 +1,89 @@
 @import 'bootstrap/bootstrap';
 
-#canvasWrapper {
-  background-color: black;
+body{
+	background-image: url("/images/shattered_dark.png");
+}
+.computerContainer{
+}
+.screenContainer{
+  margin-bottom: -5px;
+  width: 800px;
+  margin: 0 auto;
+  box-shadow: 0px 0px 97px rgba(36,199,238,0.4);
+}
+.graph{
+	background-image: url("/images/tilted_grid_bg.jpg");
+}
+#turn-time{
+  right: -25px;
+	font-family: 'digital-7regular';
+    font-size: 1.2em;
+    color: rgb(241,54,44);
+}
+#turn-time::before{
+    content: "t-";
+    font-family:'Andale Mono', Consolas, 'Courier New';
+}
+@font-face {
+    font-family: 'digital-7regular';
+    src: url('/fonts/digital-7-webfont.eot');
+    src: url('/fonts/digital-7-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/fonts/digital-7-webfont.woff') format('woff'),
+         url('/fonts/digital-7-webfont.ttf') format('truetype'),
+         url('/fonts/digital-7-webfont.svg#digital-7regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+.shell-body {
+  margin: 0 auto;
+  padding: 5px;
+  list-style: none;
+  background: #141414;
+  color: rgb(36,199,238); /*#45D40C;*/
+  font: 1.6em 'Andale Mono', Consolas, 'Courier New';
+  line-height: 1.8em;
+  width: 800px;
+ 
+  -webkit-border-bottom-right-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+label.control-label{
+  color: whitesmoke;
+}
+
+.shell-body .function::after{
+  content: "y =";
+}
+ 
+.shell-body *:before {
+  content: '$  ';
+}
+
+.shell-body input{
+  border: none;
+  outline: none;
+  background-color: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  border-bottom: 1px dashed rgb(154, 175, 192);
+  border: 1px dashed;
+  margin: 10px;
+}
+.button{
+  border: 1px dashed rgb(154, 175, 192);
+}
+.button:hover{
+  border: 1px dashed rgb(59,187,51);
+  color: rgb(59,187,51);
+}
+.shell-body * {
+  word-wrap: break-word;
+  position: relative;
+  padding: 0px 15px 0px 15px;
 }

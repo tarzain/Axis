@@ -13,16 +13,18 @@ module.exports = React.createClass(
     client.pushMove(Game.fire(@state.expression))
 
   render: ->
-    <div>
-      <Graph
-        gameState={@props.data.gameState}
-      />
-      
-      <p>Function:</p>
-      <input type="text" valueLink={this.linkState('expression')} />
-      <input type="submit" value="Fire" onClick={@fire} />
-
-      <p id="turn-time">Turn time: {@props.data.gameState.turnTime / 1000}</p>
-
+    <div className="computerContainer">
+      <div className="screenContainer">
+        <Graph
+          gameState={@props.data.gameState}
+          canvasWidth={800}
+        />
+      </div>
+      <div className="shell-body">
+        <span className="function">function: </span>
+        <input type="text" className="inputExpression" valueLink={this.linkState('expression')} />
+        <input className="button" type="submit" value="Fire" onClick={@fire} />
+        <span id="turn-time">{@props.data.gameState.displayTurnTime}</span>
+      </div>
     </div>
 )
