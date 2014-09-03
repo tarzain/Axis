@@ -8,15 +8,15 @@ body{
 }
 .screenContainer{
   margin-bottom: -5px;
-  width: 800px;
+  width: 983px;
   margin: 0 auto;
-  box-shadow: 0px 0px 97px rgba(36,199,238,0.4);
+/*  box-shadow: 0px 0px 97px rgba(36,199,238,0.4);*/
 }
 .graph{
 	background-image: url("/images/tilted_grid_bg.jpg");
 }
 #turn-time{
-  right: -25px;
+  right: -5px;
 	font-family: 'digital-7regular';
     font-size: 1.2em;
     color: rgb(241,54,44);
@@ -52,6 +52,10 @@ body{
   -moz-border-radius-bottomleft: 3px;
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
+
+  form{
+    display: inline;
+  }
 }
 
 label.control-label{
@@ -60,10 +64,6 @@ label.control-label{
 
 .shell-body .function::after{
   content: "y =";
-}
- 
-.shell-body *:before {
-  content: '$  ';
 }
 
 .shell-body input{
