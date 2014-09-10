@@ -81,6 +81,7 @@ module.exports = class Game
         turnTime: @TURN_TIME + 1
         obstacles: []
         antiobstacles: []
+        active: {team: null, player: null, dot: null}
         teams: [
             active: true
             players: []
@@ -100,7 +101,6 @@ module.exports = class Game
         @state.time++
 
         if @state.started
-
           if @state.fn
             @_processCollisions()
           else
@@ -125,6 +125,10 @@ module.exports = class Game
             when 'fire'           then @_fire(move)
             when 'setDotLocation' then @_setDotLocation(move)
 
+          @state.updated = true
+
+        # Force an update every 500ms to allow for animations
+        if !@state.updated and @state.time % 500 == 0
           @state.updated = true
 
       return @state
@@ -184,7 +188,9 @@ module.exports = class Game
         ary[0].active = true
         for item in ary
           recursivelySetActive(item.players || item.dots || null)
+
       recursivelySetActive(@state.teams)
+      @_updateActive()
 
       for team, index in @state.teams
         for player in team.players
@@ -252,12 +258,12 @@ module.exports = class Game
       if @state.turnTime == 0
         @_advanceTurn()
 
-      if !@state.updated and @state.turnTime % 1000 == 0
-        @state.updated = true
-
-
     # Advance the game by one turn, updating team/player/dot active values
+    # and @state.active
     _advanceTurn: ->
+      # If there's nothing active, this should be a no-op.
+      return unless @state.active.dot
+
       recursivelyAdvance = (ary) ->
         return unless ary?
         for item,i in ary
@@ -267,39 +273,50 @@ module.exports = class Game
             recursivelyAdvance(item.players || item.dots || null)
             break
 
-      recursivelyAdvance(@state.teams)
+      advanceOneTurn = =>
+        recursivelyAdvance(@state.teams)
+        @_updateActive()
+
+      advanceOneTurn()
 
       # If the new dot is dead, keep advancing.
-      currentDot = @_getActive().dot
-      until @_getActive().dot.alive
-        recursivelyAdvance(@state.teams)
-        break if @_getActive().dot == currentDot
+      currentDot = @state.active.dot
+      until @state.active.dot.alive
+        advanceOneTurn()
+        if @state.active.dot == currentDot
+          # No living players remaining, so nobody's active.
+          @state.active.team.active = false
+          @state.active.player.active = false
+          @state.active.dot.active = false
+          @state.active = {team: null, player: null, dot: null}
+          @state.turnTime = -1
+          @state.updated = true
+          return
 
       @state.turnTime = @TURN_TIME
       @state.updated = true
 
-    # Get the active team, player, and dot.
-    _getActive: ->
+    # Set/update the state's active team, player, and dot.
+    _updateActive: ->
       team = _.find(@state.teams, (x) -> x.active)
-      player = _.find(team.players, (x) -> x.active)
-      dot = _.find(player.dots, (x) -> x.active)
-      {team, player, dot}
+      player = _.find(team?.players, (x) -> x.active)
+      dot = _.find(player?.dots, (x) -> x.active)
+      @state.active = {team, player, dot}
 
     _fire: (move) ->
-      active = @_getActive()
-      return unless move.agentId == active.player.id and !@state.fn
+      return unless move.agentId == @state.active.player.id and !@state.fn
 
       compiledFunction = math.compile(move.expression)
 
-      flip = if active.dot.x > 0 then -1 else 1
+      flip = if @state.active.dot.x > 0 then -1 else 1
 
-      yTranslate = active.dot.y - compiledFunction.eval(x: 0)
+      yTranslate = @state.active.dot.y - compiledFunction.eval(x: 0)
 
       @state.fn = {
         expression: move.expression
-        origin: {x: active.dot.x, y: active.dot.y}
-        evaluate: (x) ->
-          compiledFunction.eval(x: flip*(x - active.dot.x)) + yTranslate
+        origin: {x: @state.active.dot.x, y: @state.active.dot.y}
+        evaluate: (x) =>
+          compiledFunction.eval(x: flip*(x - @state.active.dot.x)) + yTranslate
         startTime: @state.time
       }
 

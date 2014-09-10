@@ -14,22 +14,44 @@ module.exports = React.createClass(
     evt.preventDefault()
 
   render: ->
-    <div className="computerContainer">
-      <div className="screenContainer">
-        <Graph
-          gameState={@props.data.gameState}
-          canvasWidth={800}
-        />
-      </div>
-      <div className="shell-container">
-        <div className="shell-body">
-          <span className="function">$ function: </span>
-          <form>
-            <input type="text" className="inputExpression" valueLink={this.linkState('expression')} />
-            <input className="button" type="submit" value="Fire" onClick={@fire} />
-          </form>
-          <span id="turn-time">{Math.floor(@props.data.gameState.turnTime/1000)}</span>
+    gameState = @props.data.gameState
+
+    turnTime = Math.round(gameState.turnTime / 1000)
+    if turnTime < 10
+      if turnTime > 0
+        turnTime = '0' + turnTime
+      else
+        turnTime = '--'
+
+
+
+    <div>
+      <Graph gameState={gameState} />
+
+      <form id='controls'>
+
+        <div id='time-remaining-wrapper'>
+          <div id='time-remaining'>{ turnTime }</div>
         </div>
-      </div>
+
+        <div id='expression-wrapper'>
+          <div id='expression'>
+            <input type='text' valueLink={this.linkState('expression')} />
+            <div id='lcd-background'>ஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏஏ</div>
+          </div>
+        </div>
+
+        <div id='fire-wrapper'>
+          <input
+            className='huge black button'
+            type='submit'
+            value='FIRE'
+            onClick={@fire}
+            disabled={gameState.fn or gameState.active.player?.id != gameState.playerId}
+          />
+        </div>
+
+      </form>
+
     </div>
 )

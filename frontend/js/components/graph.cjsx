@@ -10,25 +10,38 @@ module.exports = React.createClass(
   OBSTACLE_STROKE_COLOR: 'rgb(245,255,245)'
   OBSTACLE_FILL_COLOR:   'rgba(245,255,245,0.05)'
 
-  DEAD_DOT_COLOR:        'rgb(150,150,150)'
+  DEAD_DOT_COLOR:        'rgba(245,255,245,0.5)'
 
   FUNCTION_THICKNESS: 1 # px
 
   DOT_THICKNESS: 1 # px
+  ACTIVE_DOT_THICKNESS: 4 #px
 
-  TEXT_FONT: '14px Monaco'
+  TEXT_SIZE: 14 # px
+  TEXT_FONT: 'Monaco'
   TEXT_COLOR: 'rgb(245,255,245)'
+  DEAD_TEXT_COLOR: 'rgba(245,255,245,0.5)'
 
   GLOW_COLOR: 'rgb(0,255,0)'
   GLOW_RADIUS: 5
 
-  CANVAS_WIDTH: 800 # px
+  getInitialState: ->
+    # The absolute dimensions set here don't matter, but canvas's css will
+    # remember the aspect ratio.
+    {
+      scale: window.devicePixelRatio or 1
+      canvasWidth: Game::X_MAX, 
+      canvasHeight: Game::Y_MAX
+    }
 
   componentDidMount: ->
     @lastAnimationTimestamp = 0
     @tickID = requestAnimationFrame @tick
-    
-    @paint(@getContext())
+
+    @updateCanvasSize()
+    window.addEventListener('resize', @updateCanvasSize)
+
+    @paint()
 
   tick: (animationTimestamp) ->
     dt = animationTimestamp - @lastAnimationTimestamp
@@ -39,23 +52,33 @@ module.exports = React.createClass(
 
     @tickID = requestAnimationFrame @tick
 
+  updateCanvasSize: ->
+    newWidth = @state.scale * @getCanvas().clientWidth
+    newHeight = @state.scale * @getCanvas().clientHeight 
+
+    if @state.canvasWidth != newWidth or @state.canvasHeight != newHeight
+      @setState(canvasWidth: newWidth, canvasHeight: newHeight)
+
   componentWillUnmount: ->
+    window.removeEventListener('resize', @updateCanvasSize)
     cancelAnimationFrame @tickID
 
   componentDidUpdate: ->
-    context = @getContext()
-    context.clearRect(
-      0, 
-      0, 
-      @CANVAS_WIDTH, 
-      @_canvasHeight()
-    )
-    @paint(context)
+    @paint()
 
-  getContext: ->
-    @getDOMNode().querySelector('canvas').getContext('2d')
+  getCanvas: ->
+    @getDOMNode().querySelector('canvas')
 
   paint: (context) ->
+    canvas = @getCanvas()
+    context = canvas.getContext('2d')
+
+    context.clearRect(
+      0,
+      0,
+      @state.canvasWidth,
+      @state.canvasHeight
+    )
     context.save()
 
     context.shadowColor = @GLOW_COLOR;
@@ -83,38 +106,55 @@ module.exports = React.createClass(
         for dot in player.dots
           active = dot.active and player.active and team.active
           @drawDot(context, dot, active)
-          @drawText(context, player.name, {x: dot.x, y: dot.y + 1})
+          @drawText(
+            context, 
+            player.name,
+            if dot.alive then @TEXT_COLOR else @DEAD_TEXT_COLOR,
+            {x: dot.x, y: dot.y + 1}
+          )
 
     if @props.gameState.fn
       @drawEntireFunction(context)
 
     context.restore()
 
-  # Convert game units to canvas pixels
-  _toPx: (units) ->
-    units * (0.5 * @CANVAS_WIDTH / Game::X_MAX)
+  # Returns the canvas width in pixels
+  _canvasWidth: ->
+    @state.canvasWidth
 
   # Returns the canvas height in pixels
   _canvasHeight: ->
-    @_toPx(2*Game::Y_MAX)
+    @state.canvasHeight
+
+  # Convert game units to canvas pixels
+  _toPx: (units, vertical = false) ->
+    if vertical
+      units * (0.5 * @state.canvasHeight / Game::Y_MAX)
+    else
+      units * (0.5 * @state.canvasWidth / Game::X_MAX)
  
   # Convert game coordinates to canvas coordinates
   _g2c: (x,y) ->
     flip = if @props.gameState.flipped then -1 else 1
     [
       @_toPx(Game::X_MAX + (flip * x)),
-      @_toPx(Game::Y_MAX - y),
+      @_toPx(Game::Y_MAX - y, true),
     ]
 
   drawDot: (context, dot, dotActive) ->
+    if dotActive and @props.gameState.time % 2000 < 1000
+      scaledThickness = @state.scale * @ACTIVE_DOT_THICKNESS
+    else
+      scaledThickness = @state.scale * @DOT_THICKNESS
+
     context.beginPath()
     context.arc(
       @_g2c(dot.x, dot.y)..., 
-      @_toPx(Game::DOT_RADIUS) - @DOT_THICKNESS/2, 
+      @_toPx(Game::DOT_RADIUS) - (scaledThickness/2), 
       0, 
       2*Math.PI
     )
-    context.lineWidth = @DOT_THICKNESS
+    context.lineWidth = scaledThickness
     if dotActive
       context.strokeStyle = @ACTIVE_DOT_COLOR
     else if !dot.alive
@@ -131,17 +171,17 @@ module.exports = React.createClass(
     context.beginPath()
     context.arc(
       @_g2c(ao.x, ao.y)..., 
-      @_toPx(Game::DOT_RADIUS) - @DOT_THICKNESS/2, 
-      0, 
+      @_toPx(Game::ANTIOBSTACLE_RADIUS), 
+      0,
       2*Math.PI
     )
 
     context.clip()
     context.clearRect(
-      0, 
       0,
-      @CANVAS_WIDTH,
-      @_canvasHeight()
+      0,
+      @state.canvasWidth,
+      @state.canvasHeight
     )
 
     context.restore()
@@ -162,10 +202,10 @@ module.exports = React.createClass(
     context.fill()
     context.stroke()
 
-  drawText: (context, text, origin) ->
-    context.font = @TEXT_FONT
+  drawText: (context, text, color, origin) ->
+    context.font = (@TEXT_SIZE*@state.scale)+'px '+@TEXT_FONT
     context.textAlign = 'center'
-    context.fillStyle = @TEXT_COLOR
+    context.fillStyle = color
     context.fillText(text.toUpperCase(), @_g2c(origin.x, origin.y)...)
 
   drawEntireFunction: (context) ->
@@ -173,7 +213,7 @@ module.exports = React.createClass(
     @drawFunctionSegment(context, 0, @tMax)
 
   extendFunction: (dt) ->
-    context = @getContext()
+    context = @getCanvas().getContext('2d')
 
     context.save()
     @drawFunctionSegment(context, @tMax, @tMax + dt)
@@ -183,7 +223,7 @@ module.exports = React.createClass(
 
   drawFunctionSegment: (context, t0, tMax) ->
     context.beginPath()
-    context.lineWidth = @FUNCTION_THICKNESS
+    context.lineWidth = @state.scale * @FUNCTION_THICKNESS
     context.strokeStyle = @FUNCTION_COLOR
     flip = if @props.gameState.fn.origin.x > 0 then -1 else 1
 
@@ -206,10 +246,10 @@ module.exports = React.createClass(
     context.stroke()
 
   render: ->
-    <div id='canvasWrapper'>
+    <div id='canvas-wrapper'>
       <canvas
-        width={@CANVAS_WIDTH}
-        height={@_canvasHeight()}
+        width={@state.canvasWidth}
+        height={@state.canvasHeight}
       />
     </div>
 
