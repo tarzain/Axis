@@ -2,6 +2,7 @@
   "name": "Axis",
   "version": "0.0.1",
   "dependencies": {
+    "audio5": "^0.1.9",
     "browserify": "^4.1.8",
     "coffee-reactify": "^0.1.2",
     "coffee-script": "^1.7.1",

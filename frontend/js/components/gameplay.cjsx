@@ -2,6 +2,7 @@ React = require('react/addons')
 Game = require('../../../shared/game.coffee')
 Graph = require('./graph.cjsx')
 client = require('../client.coffee')
+Sound = require('../sound.coffee')
 
 module.exports = React.createClass(
   mixins: [React.addons.LinkedStateMixin]
@@ -11,6 +12,7 @@ module.exports = React.createClass(
 
   fire: (evt) ->
     client.pushMove(Game.fire(@state.expression))
+    Sound.play('explosion')
     evt.preventDefault()
 
   render: ->

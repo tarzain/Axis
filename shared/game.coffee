@@ -97,6 +97,7 @@ module.exports = class Game
             players: []
         ]
 
+
     # Updates @state to the given time and player, returning @state.
     generateStateAtTimeForPlayer: (t, playerId = null) ->
       # If @state and t >= @state.time, we can start from there. Otherwise
@@ -354,6 +355,7 @@ module.exports = class Game
           
           @state.antiobstacles.push({x,y})
           endFunction()
+          @playSound("explosion")
 
       unless -@X_MAX <= x <= @X_MAX and 
              -@Y_MAX <= y <= @Y_MAX
