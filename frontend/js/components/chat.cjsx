@@ -6,24 +6,25 @@ module.exports = React.createClass(
 	mixins: [React.addons.LinkedStateMixin]
 
 	getInitialState:->
-		{message: "type a message"}
+		{message: ""}
 
 	sendMessage: (evt)->
 		client.pushMove(Game.sendMessage(@state.message))
 		evt.preventDefault()
+		@state.message = ""
 
 	render: ->
 		messages = @props.gameState.messages.map (message) ->
 			<li className="message" key={message.time}>
-				<span>{message.sender}</span>
-				<span>{message.text}</span>
-				<span>{message.time}</span>
+				<div className="sender">{message.sender}</div>
+				<div className="text">{message.text}</div>
 			</li>
-		<div className="sidebar">
+		<div>
+			<div className="heading">Chat</div>
 			<div className="chats">
-				<ul className="messageList">
+				<ol className="messageList">
 					{messages}
-				</ul>
+				</ol>
 			</div>
 			<form id="chatbox">
 				<input type="text" placeholder="type a message" valueLink = {this.linkState('message')} />

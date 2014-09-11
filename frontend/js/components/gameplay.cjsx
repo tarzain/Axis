@@ -2,7 +2,6 @@ React = require('react/addons')
 Game = require('../../../shared/game.coffee')
 Graph = require('./graph.cjsx')
 client = require('../client.coffee')
-Chat = require('./chat.cjsx')
 
 module.exports = React.createClass(
   mixins: [React.addons.LinkedStateMixin]
@@ -53,6 +52,5 @@ module.exports = React.createClass(
         </div>
 
       </form>
-      <Chat gameState={gameState} />
     </div>
 )
