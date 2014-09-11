@@ -88,6 +88,7 @@ module.exports = class Game
         antiobstacles: []
         active: {team: null, player: null, dot: null}
         messages: []
+        guests: {}
         teams: [
             active: true
             players: []
@@ -366,7 +367,11 @@ module.exports = class Game
       try
         name = @_getPlayer(move.agentId).name
       catch error
-        name = "guest"
+        if @state.guests[move.agentId]
+          name = "guest "+@state.guests[move.agentId]
+        else
+          @state.guests[move.agentId] = Object.keys(@state.guests).length
+          name = "guest "+Object.keys(@state.guests).length
         
       @state.messages.push(
         sender: name
