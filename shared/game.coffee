@@ -69,6 +69,11 @@ module.exports = class Game
     @setDotLocation: (dotPath, location) ->
       return {type: 'setDotLocation', location: location, dotPath: dotPath}
 
+    # Send chat message from player
+    # Any player can make this move at anytime
+    @sendMessage: (message) ->
+      return {type: 'sendMessage', message: message}
+
     _resetState: (playerId = null) ->
       @state = 
         playerId: playerId
@@ -82,6 +87,7 @@ module.exports = class Game
         obstacles: []
         antiobstacles: []
         active: {team: null, player: null, dot: null}
+        messages: []
         teams: [
             active: true
             players: []
@@ -124,6 +130,7 @@ module.exports = class Game
             when 'start'          then @_start(move)
             when 'fire'           then @_fire(move)
             when 'setDotLocation' then @_setDotLocation(move)
+            when 'sendMessage'    then @_sendMessage(move)
 
           @state.updated = true
 
@@ -350,6 +357,22 @@ module.exports = class Game
       unless -@X_MAX <= x <= @X_MAX and 
              -@Y_MAX <= y <= @Y_MAX
         endFunction()
+
+    ######
+    # Chat
+    ######
+
+    _sendMessage: (move)->
+      try
+        name = @_getPlayer(move.agentId).name
+      catch error
+        name = "guest"
+        
+      @state.messages.push(
+        sender: name
+        text: move.message
+        time: move.t
+      )
 
     ######################
     # Sync / subscriptions
