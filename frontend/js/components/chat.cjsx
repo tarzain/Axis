@@ -27,8 +27,8 @@ module.exports = React.createClass(
 				</ol>
 			</div>
 			<form id="chatbox">
-				<input type="text" placeholder="type a message" valueLink = {this.linkState('message')} />
-				<input type="submit" value="send" onClick ={@sendMessage} />
+				<input className="messageBox" type="text" placeholder="type a message" valueLink = {this.linkState('message')} />
+				<input className="messageSubmit" type="submit" value="send" onClick ={@sendMessage} />
 			</form>
 		</div>
 )

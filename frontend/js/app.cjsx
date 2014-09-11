@@ -20,7 +20,7 @@ App = React.createClass(
         content = <GamePage params={this.props.params} data={this.props.data} />
         chat = null
         if this.props.data.gameState !=null and this.props.data.gameState.started
-          chat = <div className="sidebar col sm-6 pull-right"><Chat gameState={this.props.data.gameState} /></div>
+          chat = <div className="sidebar col-sm-2 pull-right"><Chat gameState={this.props.data.gameState} /></div>
       else
         content = <pre>props: {JSON.stringify(this.props, null, 4)}</pre>
 
@@ -30,8 +30,12 @@ App = React.createClass(
           <a className="navbar-brand" href="/">Axis</a>
         </div>
       </div>
-      {chat}
-      <div className="container">{content}</div>
+      <div className="wrapper row">
+        <div className="col-sm-12">
+          <div className="col-sm-8 col-sm-offset-1">{content}</div>
+          {chat}
+        </div>
+      </div>
     </div>
 )
 
